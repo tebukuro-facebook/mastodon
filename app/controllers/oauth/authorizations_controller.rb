@@ -7,10 +7,6 @@ class Oauth::AuthorizationsController < Doorkeeper::AuthorizationsController
   before_action :authenticate_resource_owner!
   before_action :set_cache_headers
 
-  content_security_policy do |p|
-    p.form_action(false)
-  end
-
   include Localized
 
   private

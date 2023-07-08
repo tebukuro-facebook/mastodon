@@ -57,7 +57,7 @@ module Admin
     end
 
     def preload_delivery_failures!
-      warning_domains_map = DeliveryFailureTracker.warning_domains_map(@instances.map(&:domain))
+      warning_domains_map = DeliveryFailureTracker.warning_domains_map
 
       @instances.each do |instance|
         instance.failure_days = warning_domains_map[instance.domain]

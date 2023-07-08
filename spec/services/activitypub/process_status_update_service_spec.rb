@@ -331,7 +331,7 @@ RSpec.describe ActivityPub::ProcessStatusUpdateService, type: :service do
 
     context 'originally without media attachments' do
       before do
-        stub_request(:get, 'https://example.com/foo.png').to_return(body: attachment_fixture('emojo.png'))
+        allow(RedownloadMediaWorker).to receive(:perform_async)
         subject.call(status, json)
       end
 
@@ -355,8 +355,8 @@ RSpec.describe ActivityPub::ProcessStatusUpdateService, type: :service do
         expect(media_attachment.remote_url).to eq 'https://example.com/foo.png'
       end
 
-      it 'fetches the attachment' do
-        expect(a_request(:get, 'https://example.com/foo.png')).to have_been_made
+      it 'queues download of media attachments' do
+        expect(RedownloadMediaWorker).to have_received(:perform_async)
       end
 
       it 'records media change in edit' do

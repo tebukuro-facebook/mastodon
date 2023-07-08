@@ -3,11 +3,10 @@
 class ActivityPub::FetchFeaturedCollectionService < BaseService
   include JsonLdHelper
 
-  def call(account, **options)
+  def call(account)
     return if account.featured_collection_url.blank? || account.suspended? || account.local?
 
     @account = account
-    @options = options
     @json    = fetch_resource(@account.featured_collection_url, true, local_follower)
 
     return unless supported_context?(@json)
@@ -39,9 +38,9 @@ class ActivityPub::FetchFeaturedCollectionService < BaseService
   def process_items(items)
     status_ids = items.filter_map do |item|
       uri = value_or_id(item)
-      next if ActivityPub::TagManager.instance.local_uri?(uri) || invalid_origin?(uri)
+      next if ActivityPub::TagManager.instance.local_uri?(uri)
 
-      status = ActivityPub::FetchRemoteStatusService.new.call(uri, on_behalf_of: local_follower, expected_actor_uri: @account.uri, request_id: @options[:request_id])
+      status = ActivityPub::FetchRemoteStatusService.new.call(uri, on_behalf_of: local_follower)
       next unless status&.account_id == @account.id
 
       status.id

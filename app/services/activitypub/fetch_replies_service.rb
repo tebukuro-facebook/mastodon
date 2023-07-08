@@ -3,14 +3,14 @@
 class ActivityPub::FetchRepliesService < BaseService
   include JsonLdHelper
 
-  def call(parent_status, collection_or_uri, allow_synchronous_requests: true, request_id: nil)
+  def call(parent_status, collection_or_uri, allow_synchronous_requests = true)
     @account = parent_status.account
     @allow_synchronous_requests = allow_synchronous_requests
 
     @items = collection_items(collection_or_uri)
     return if @items.nil?
 
-    FetchReplyWorker.push_bulk(filtered_replies) { |reply_uri| [reply_uri, { 'request_id' => request_id}] }
+    FetchReplyWorker.push_bulk(filtered_replies)
 
     @items
   end
